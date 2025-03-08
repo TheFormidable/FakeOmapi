@@ -1,0 +1,23 @@
+cc_binary {
+    name: "android.se.omapi.fake",
+
+    init_rc: ["android.se.omapi.rc"],
+    relative_install_path: "hw",
+    srcs: [
+        "main.cpp",
+        "Reader.cpp",
+        "Service.cpp",
+        "Session.cpp",
+        ],
+    local_include_dirs: ["include"],
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "android.se.omapi-V1-ndk",
+    ],
+    static_libs: [
+    ],
+    vendor: true,
+    // recovery: true,
+    vintf_fragments: ["android.se.omapi.xml"],
+}

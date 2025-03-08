@@ -1,0 +1,5 @@
+service se_omapi /vendor/bin/hw/android.se.omapi.cpp
+    class hal
+    user root
+    group root
+    interface aidl android.se.omapi.ISecureElementService/default
