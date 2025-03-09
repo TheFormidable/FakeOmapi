@@ -9,7 +9,7 @@
 
 #include <aidl/android/se/omapi/BnSecureElementService.h>
 
-#include "Terminal.h"
+// #include "Terminal.h"
 
 namespace aidl::android::se::omapi {
 class SecureElementService : public BnSecureElementService {
@@ -27,7 +27,8 @@ class SecureElementService : public BnSecureElementService {
     private:
         const std::string ESE_TERMINAL  = "eSE";
         std::mutex mTerminalsMutex;
-        std::map<std::string, sp<Terminal>> mTerminals;
+        // std::map<std::string, sp<Terminal>> mTerminals;
+        std::map<std::string, std::string> mTerminals;
         int mActiveSimCount = 0;
         std::string getPackageNameFromCallingUid(int uid) {
             // Runing in native environment without PackageManager, return empty string straightly

@@ -18,27 +18,29 @@ namespace aidl::android::se::omapi {
                 const std::string& prefix = ESE_TERMINAL;
                 std::lock_guard<std::mutex> lock(mTerminalsMutex);
 
-                for (const auto& pair : mTerminals) {
-                    if (pair.first.find(prefix) == 0) {
-                        readers->push_back(pair.first);
-                    }
-                }
-            }
+                // for (const auto& pair : mTerminals) {
+                //     if (pair.first.find(prefix) == 0) {
+                //         readers->push_back(pair.first);
+                //     }
+                // }
+                readers->push_back("eSE1");
+        }
         return ndk::ScopedAStatus::ok();
     };
+
     ndk::ScopedAStatus SecureElementService::getReader(const std::string& in_reader,
                                                         std::shared_ptr<ISecureElementReader>* out_reader) {
         LOG(INFO) << __func__;
         std::cout << "getReader for " << in_reader.c_str() << std::endl;
-        for (const auto& pair : mTerminals) {
-            if (pair.first.compare(in_reader) == 0) {
-                out_reader = pair.second;
-                return ndk::ScopedAStatus::ok();
-            }
-        }
+        // for (const auto& pair : mTerminals) {
+        //     if (pair.first.compare(in_reader) == 0) {
+        //         out_reader = pair.second;
+        //         return ndk::ScopedAStatus::ok();
+        //     }
+        // }
         return ndk::ScopedAStatus::ok();
     };
-    ndk::ScopedAStatus isNfcEventAllowed(const std::string& reader,
+    ndk::ScopedAStatus SecureElementService::isNfcEventAllowed(const std::string& reader,
                                             const std::vector<uint8_t>& aid,
                                             const std::vector<std::string>& packageNames,
                                             int32_t userId,
