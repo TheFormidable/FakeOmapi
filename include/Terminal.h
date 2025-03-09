@@ -6,22 +6,29 @@
 
 #include <android/binder_ibinder.h>
 
+#include <utils/RefBase.h>
+
 #include <aidl/android/se/omapi/BnSecureElementReader.h>
 #include <aidl/android/se/omapi/BnSecureElementSession.h>
 
 #include <aidl/android/hardware/secure_element/ISecureElement.h>
+#include <aidl/android/hardware/secure_element/BnSecureElement.h>
 #include <aidl/android/hardware/secure_element/ISecureElementCallback.h>
 
-#include "Channel.h"
+// #include "Channel.h"
 
-class Terminal : public RefBase {
+// using 
+using aidl::android::hardware::secure_element::ISecureElement;
+using aidl::android::hardware::secure_element::ISecureElementCallback;
+using aidl::android::hardware::secure_element::BnSecureElement;
+
+class Terminal : public android::RefBase {
     public:
-        Terminal(const std::string& name);
+        Terminal();
         virtual ~Terminal();
 
-        status_t initialize();
         void close();
-        bool isSecureElementPresent() = true;
+        bool isSecureElementPresent();
         std::vector<uint8_t> transmit(const std::vector<uint8_t>& data);
         std::vector<uint8_t> getAtr();
 
@@ -30,7 +37,7 @@ class Terminal : public RefBase {
         // void closeChannel(int channelNumber);
 
     private:
-        std::shared_ptr<ISecureElementAIDL> mSEAIDLHal;
+        std::shared_ptr<ISecureElement> mSEAIDLHal;
         std::shared_ptr<ISecureElementCallback> mSEAIDLHalCallback;
     
         std::mutex mLock;
@@ -38,7 +45,7 @@ class Terminal : public RefBase {
         // std::map<int, sp<Channel>> mChannels;
         std::string mName;
 
-        std::shared_ptr<DeathRecipient> mDeathRecipient = ::ndk::SharedRefBase::make<DeathRecipient>();
+        // AIBinder_DeathRecipient mDeathRecipient;
 
         // TODO
         // sp<AccessControlEnforcer> mAccessControlEnforcer;

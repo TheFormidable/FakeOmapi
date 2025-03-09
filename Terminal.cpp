@@ -3,12 +3,6 @@
 
 Terminal() {
     mName = ESE_TERMINAL;
-    initialize();
-}
-
-void Terminal::initialize() {
-    std::lock_guard<std::mutex> lock(mLock);
-    
     if (mSEAIDLHal == nullptr) {
         mSEAIDLHal = ISecureElement::getService();
         if (mSEAIDLHal != nullptr) {
