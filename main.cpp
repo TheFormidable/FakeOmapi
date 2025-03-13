@@ -1,4 +1,3 @@
-#include "omapi.h"
 #include "Service.h"
 
 #include <android-base/logging.h>

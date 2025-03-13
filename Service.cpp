@@ -1,13 +1,14 @@
 #include "Service.h"
+#include "Terminal.h"
 
 namespace aidl::android::se::omapi {
     SecureElementService::SecureElementService() {
-        mTerminals.insert({"eSE1", "new Terminal()"});
+        createTerminals();
     }
 
     ndk::ScopedAStatus SecureElementService::getReaders(std::vector<std::string>* readers) {
             int callingUid = AIBinder_getCallingUid();
-            LOG(INFO) << "getReaders() for uid: " << callingUid << std::endl;
+            LOG(INFO) << "getReaders() for uid: " << callingUid;
             std::string packageName = getPackageNameFromCallingUid(callingUid);
 
             if (packageName != "") {
@@ -25,7 +26,7 @@ namespace aidl::android::se::omapi {
                 for (const auto& pair : mTerminals) {
                     if (pair.first.find(prefix) == 0) {
                         readers->push_back(pair.first);
-                        LOG(INFO) << "Find eseReader: " << pair.first << std::endl;
+                        LOG(INFO) << "Find eseReader: " << pair.first;
                     }
                 }
         }
@@ -35,17 +36,21 @@ namespace aidl::android::se::omapi {
     ndk::ScopedAStatus SecureElementService::getReader(const std::string& readerName,
                                                         std::shared_ptr<ISecureElementReader>* readerObj) {
         LOG(INFO) << __func__;
-        std::cout << "getReader for " << readerName.c_str() << std::endl;
-
+        LOG(INFO) << "getReader for " << readerName.c_str() << std::endl;
         for (const auto& pair : mTerminals) {
             if (pair.first.compare(readerName) == 0) {
-                // readerObj = pair.second;
-                std::cout << "Find reader for: " << readerName.c_str() << ", " << pair.second << std::endl;
+                LOG(INFO) << "Find reader for: " << readerName.c_str() << std::endl;
+                ::android::sp<Terminal> terminal = getTerminal(readerName);
+                if (terminal != nullptr) {
+                    LOG(INFO) << __func__ << ": Getting reader";
+                    *readerObj = terminal->newSecureElementReader(ndk::SharedRefBase::make<SecureElementService>());
+                }
                 return ndk::ScopedAStatus::ok();
             }
         }
         return ndk::ScopedAStatus::ok();
-    };
+    }
+
     ndk::ScopedAStatus SecureElementService::isNfcEventAllowed(const std::string& readerName,
                                             const std::vector<uint8_t>& aid,
                                             const std::vector<std::string>& packageNames,
@@ -58,5 +63,33 @@ namespace aidl::android::se::omapi {
             isAllowed->push_back(false);
         }
         return ndk::ScopedAStatus::ok();
-    };
+    }
+
+    void SecureElementService::createTerminals() {
+        addTerminals(SecureElementService::ESE_TERMINAL);
+        /* We don't use sim card in native environment */
+        // addTerminals(UICC_TERMINAL);
+    }
+
+    void SecureElementService::addTerminals(std::string terminalName) {
+        int index = 1;
+        if (terminalName.find(SecureElementService::UICC_TERMINAL) == 0) {
+            index += mActiveSimCount + 1;
+        }
+        /* Ignore add for UICC */
+        const std::string name = terminalName + std::to_string(index);
+        ::android::sp<Terminal> terminal = new Terminal(name);
+        terminal->initialize(index == 1);
+        mTerminals.insert({name, terminal});
+    }
+
+    ::android::sp<Terminal> SecureElementService::getTerminal(const std::string& terminalName) {
+        LOG(INFO) << __func__;
+        auto it = mTerminals.find(terminalName);
+        if (it != mTerminals.end()) {
+            LOG(INFO) << __func__ << "Find terminal for " << terminalName;
+            return it->second; // Valid: 'it->second' is the value
+        }
+        return nullptr;
+    }
 }

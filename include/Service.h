@@ -8,13 +8,24 @@
 #include <android/binder_ibinder.h>
 
 #include <aidl/android/se/omapi/BnSecureElementService.h>
+#include <aidl/android/se/omapi/ISecureElementReader.h>
 
-#include "Terminal.h"
-// #include "Reader.h"
+#include <utils/StrongPointer.h>
+
+using aidl::android::se::omapi::ISecureElementReader;
+
+namespace aidl::android::se {
+class Terminal;
+}
 
 namespace aidl::android::se::omapi {
+using aidl::android::se::Terminal;
+
 class SecureElementService : public BnSecureElementService {
     public:
+        inline static const std::string UICC_TERMINAL = "SIM";
+        inline static const std::string ESE_TERMINAL = "eSE";
+
         SecureElementService();
         virtual ~SecureElementService() = default;
         virtual ndk::ScopedAStatus getReaders(std::vector<std::string>* readers);
@@ -27,17 +38,17 @@ class SecureElementService : public BnSecureElementService {
                                                     std::vector<bool>* isAllowed);
     
     private:
-        const std::string ESE_TERMINAL  = "eSE";
         std::mutex mTerminalsMutex;
-        // std::map<std::string, sp<Terminal>> mTerminals;
-        std::map<std::string, std::string> mTerminals;
-        // int mActiveSimCount = 0;
-        std::string getPackageNameFromCallingUid(int uid) {
+        std::map<const std::string, ::android::sp<Terminal>> mTerminals;
+        int mActiveSimCount = 0;
+        std::string getPackageNameFromCallingUid(int /*uid*/) {
             // Runing in native environment without PackageManager, return empty string straightly
             return "";
         }
 
-        std::shared_ptr<Terminal> getTerminal(const std::string& readerName);
-        
+        void createTerminals();
+        void addTerminals(const std::string terminalName);
+    
+        ::android::sp<Terminal> getTerminal(const std::string& readerName);
     };
 }
