@@ -1,4 +1,4 @@
-service vendor.se_omapi /vendor/bin/hw/android.se.omapi
+service vendor.se_omapi /vendor/bin/hw/android.se.omapi.fake
     class hal
     user root
     group root
