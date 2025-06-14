@@ -79,16 +79,21 @@ SecureElementSession::SecureElementSession(SecureElementReader* reader) {
         /* Skip judging of equal of mReader and ESE_TERMINAL */
         // int uid = AIBinder_getCallingUid();
         Terminal& terminal = mReader->getTerminal();
-        Channel* channel = terminal.openBasicChannel(this, aid, p2, listener,
+        std::shared_ptr<Channel> channel = terminal.openBasicChannel(this, aid, p2, listener,
                                                                     "" /* package name */, mUuid, AIBinder_getCallingPid());
         if (channel == nullptr) {
             LOG(ERROR) << "OpenBasicChannel() - returning null";
+            // Consider returning an error status if channel is nullptr
+            // For now, proceeding as original logic might imply *outChannel could be null.
+            *outChannel = nullptr; // Explicitly set outChannel to null
+            return ::ndk::ScopedAStatus::ok(); // Or an error status
         }
         LOG(INFO) << "Open basic channel success. Channel: " << channel->getChannelNumber();
         
         std::lock_guard<std::mutex> lock(mLock);
-        mChannels.push_back(channel);
-        auto sChannel = std::shared_ptr<Channel>(channel); 
+        mChannels.push_back(channel.get()); // Store raw pointer if mChannels remains std::vector<Channel*>
+        // auto sChannel = std::shared_ptr<Channel>(channel); // This was the problematic line
+        auto sChannel = channel; // Correctly copy the shared_ptr
         *outChannel = ndk::SharedRefBase::make<SecureElementChannel>(sChannel);
         return ::ndk::ScopedAStatus::ok();
     }
@@ -98,10 +103,16 @@ SecureElementSession::SecureElementSession(SecureElementReader* reader) {
         LOG(INFO) << __func__ << " AID = " << hex2string(aid) << ", P2 = " << p2;
         if(mIsClosed) {
             LOG(ERROR) << __func__ << ": Session is closed!";
+            *outChannel = nullptr;
+            return ::ndk::ScopedAStatus::fromExceptionCode(EX_ILLEGAL_STATE); // Example error
         } else if(listener == nullptr) {
             LOG(ERROR) << __func__ << ": listener is null!";
+            *outChannel = nullptr;
+            return ::ndk::ScopedAStatus::fromExceptionCode(EX_NULL_POINTER); // Example error
         } else if ((p2 != 0x00) && (p2 != 0x04) && (p2 != 0x08) && (p2 != 0x0C)) {
             LOG(ERROR) << __func__ << ": Unsupported p2 operation: " << (p2 & 0xFF);
+            *outChannel = nullptr;
+            return ::ndk::ScopedAStatus::fromExceptionCode(EX_ILLEGAL_ARGUMENT); // Example error
         }
         std::string packageName = ""; /* getPackageNameFromCallingUid, empty on native env */
 
@@ -110,19 +121,21 @@ SecureElementSession::SecureElementSession(SecureElementReader* reader) {
         // }
 
         Terminal& terminal = mReader->getTerminal();
-        Channel* channel = terminal.openLogicalChannel(this, aid, p2, listener, packageName, mUuid, AIBinder_getCallingPid());
+        std::shared_ptr<Channel> channel = terminal.openLogicalChannel(this, aid, p2, listener, packageName, mUuid, AIBinder_getCallingPid());
 
         if(channel == nullptr) {
             LOG(ERROR) << __func__ << ": openLogicalChannel() - returning null";
-            return ::ndk::ScopedAStatus::ok();
+            *outChannel = nullptr; // Ensure outChannel is null if channel is null
+            return ::ndk::ScopedAStatus::ok(); // Or an appropriate error status
         }
 
         LOG(INFO) << __func__ << ": openLogicalChannel() Success. Channel: " << channel->getChannelNumber();
 
         std::lock_guard<std::mutex> lock(mLock);
-        mChannels.push_back(channel);
+        mChannels.push_back(channel.get()); // Store raw pointer if mChannels remains std::vector<Channel*>
 
-        auto sChannel = std::shared_ptr<Channel>(channel); 
+        // auto sChannel = std::shared_ptr<Channel>(channel); // This was the problematic line
+        auto sChannel = channel; // Correctly copy the shared_ptr
         *outChannel = ndk::SharedRefBase::make<SecureElementChannel>(sChannel);
         return ::ndk::ScopedAStatus::ok();
     }

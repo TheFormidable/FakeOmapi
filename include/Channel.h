@@ -47,7 +47,7 @@ class Channel : public ::android::RefBase {
         int mChannelNumber;
         std::vector<uint8_t> mSelectResponse;
         std::vector<uint8_t> mAid;
-        const std::shared_ptr<ISecureElementListener>& mListener;
+        const std::shared_ptr<ISecureElementListener> mListener;
         int mCallingPid;
          uint8_t internalGetModifiedCla(uint8_t originalCla, int channelNumber) const;
         void setCallingPid(int pid);

@@ -134,13 +134,13 @@ std::shared_ptr<ISecureElementReader> Terminal::newSecureElementReader(std::shar
     return ndk::SharedRefBase::make<SecureElementReader>(service, this);
 }
 
-Channel* Terminal::openBasicChannel(ISecureElementSession* session, const std::vector<uint8_t>& aid, uint8_t p2, const std::shared_ptr<ISecureElementListener>& listener, const std::string& packageName, const std::vector<uint8_t>& uuid, int pid) {
+std::shared_ptr<Channel> Terminal::openBasicChannel(ISecureElementSession* session, const std::vector<uint8_t>& aid, uint8_t p2, const std::shared_ptr<ISecureElementListener>& listener, const std::string& packageName, const std::vector<uint8_t>& uuid, int pid) {
     LOG(INFO) << __func__;
     LOG(ERROR) << __func__ << " 还没写";
     return nullptr;
 }
 
-Channel* Terminal::openLogicalChannel(ISecureElementSession* session, const std::vector<uint8_t>& aid, uint8_t p2, const std::shared_ptr<ISecureElementListener>& listener, const std::string& packageName, const std::vector<uint8_t>& uuid, int pid) {
+std::shared_ptr<Channel> Terminal::openLogicalChannel(ISecureElementSession* session, const std::vector<uint8_t>& aid, uint8_t p2, const std::shared_ptr<ISecureElementListener>& listener, const std::string& packageName, const std::vector<uint8_t>& uuid, int pid) {
     LOG(INFO) << __func__;
     // LOG(ERROR) << __func__ << " 还没写";
     if (aid.empty()) {

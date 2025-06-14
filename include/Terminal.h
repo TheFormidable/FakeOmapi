@@ -49,8 +49,8 @@ public:
     std::string getName() const;
     std::vector<uint8_t> getAtr();
     void selectDefaultApplication();
-    Channel* openBasicChannel(ISecureElementSession* session, const std::vector<uint8_t>& aid, uint8_t p2, const std::shared_ptr<ISecureElementListener>& listener, const std::string& packageName, const std::vector<uint8_t>& uuid, int pid);
-    Channel* openLogicalChannel(ISecureElementSession* session, const std::vector<uint8_t>& aid, uint8_t p2, const std::shared_ptr<ISecureElementListener>& listener, const std::string& packageName, const std::vector<uint8_t>& uuid, int pid);
+    std::shared_ptr<Channel> openBasicChannel(ISecureElementSession* session, const std::vector<uint8_t>& aid, uint8_t p2, const std::shared_ptr<ISecureElementListener>& listener, const std::string& packageName, const std::vector<uint8_t>& uuid, int pid);
+    std::shared_ptr<Channel> openLogicalChannel(ISecureElementSession* session, const std::vector<uint8_t>& aid, uint8_t p2, const std::shared_ptr<ISecureElementListener>& listener, const std::string& packageName, const std::vector<uint8_t>& uuid, int pid);
     bool isAidSelectable(const std::vector<uint8_t>& aid);
     std::vector<uint8_t> transmit(const std::vector<uint8_t>& cmd);
     bool isSecureElementPresent();
