@@ -126,7 +126,8 @@ SecureElementSession::SecureElementSession(SecureElementReader* reader) {
         if(channel == nullptr) {
             LOG(ERROR) << __func__ << ": openLogicalChannel() - returning null";
             *outChannel = nullptr; // Ensure outChannel is null if channel is null
-            return ::ndk::ScopedAStatus::ok(); // Or an appropriate error status
+            return ::ndk::ScopedAStatus::fromServiceSpecificErrorWithMessage(
+                    -1, "Failed to openLogicalChannel");
         }
 
         LOG(INFO) << __func__ << ": openLogicalChannel() Success. Channel: " << channel->getChannelNumber();
