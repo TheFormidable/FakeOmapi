@@ -25,9 +25,6 @@ cc_binary {
         "libbase",
         "libbinder_ndk",
         "libutils",
-    ],
-
-    static_libs: [
         "android.hardware.secure_element-V1-ndk",
         "android.se.omapi-V1-ndk",
     ],
