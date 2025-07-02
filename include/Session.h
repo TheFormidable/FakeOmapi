@@ -47,6 +47,10 @@ class SecureElementSession : public BnSecureElementSession {
         std::mutex mLock;
         bool mIsClosed;
         std::vector<uint8_t> mAtr;
-        const std::vector<uint8_t> mUuid = hexStringToBytes(UUID_HEX);
+#ifndef CUSTOM_UUID_HEXSTRING
+        const std::vector<uint8_t> mUuid = hexStringToBytes(UUID_HEXSTRING);
+#else
+        const std::vector<uint8_t> mUuid = hexStringToBytes(CUSTOM_UUID_HEXSTRING);
+#endif
 };
 }  // namespace aidl::android::se::omapi
