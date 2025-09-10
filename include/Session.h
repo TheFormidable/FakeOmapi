@@ -12,7 +12,6 @@ using aidl::android::se::omapi::ISecureElementChannel;
 using aidl::android::se::omapi::ISecureElementListener;
 using aidl::android::se::omapi::ISecureElementReader;
 
-
 namespace aidl::android::se {
 class Channel;
 class SecureElementChannel;
@@ -37,9 +36,11 @@ class SecureElementSession : public BnSecureElementSession {
         ::ndk::ScopedAStatus closeChannels();
         ::ndk::ScopedAStatus isClosed(bool* isClosed);
         ::ndk::ScopedAStatus openBasicChannel(const std::vector<uint8_t>& aid, int8_t p2,
-                                                const std::shared_ptr<ISecureElementListener>& listener, std::shared_ptr<ISecureElementChannel>* outChannel);
+                                              const std::shared_ptr<ISecureElementListener>& listener,
+                                              std::shared_ptr<ISecureElementChannel>* outChannel);
         ::ndk::ScopedAStatus openLogicalChannel(const std::vector<uint8_t>& aid, int8_t p2,
-                                                const std::shared_ptr<ISecureElementListener>& listener, std::shared_ptr<ISecureElementChannel>* outChannel);
+                                                const std::shared_ptr<ISecureElementListener>& listener,
+                                                std::shared_ptr<ISecureElementChannel>* outChannel);
 
     private:
         std::shared_ptr<SecureElementReader> mReader;
@@ -47,10 +48,9 @@ class SecureElementSession : public BnSecureElementSession {
         std::mutex mLock;
         bool mIsClosed;
         std::vector<uint8_t> mAtr;
-#ifndef CUSTOM_UUID_HEXSTRING
-        const std::vector<uint8_t> mUuid = hexStringToBytes(UUID_HEXSTRING);
-#else
-        const std::vector<uint8_t> mUuid = hexStringToBytes(CUSTOM_UUID_HEXSTRING);
-#endif
+
+        // Ahora en vez de un solo mUuid tenemos una lista de candidatos
+        std::vector<std::vector<uint8_t>> mUuidCandidates;
 };
 }  // namespace aidl::android::se::omapi
+
